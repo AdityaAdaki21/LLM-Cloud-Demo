@@ -42,5 +42,8 @@ jobs:
           # Commit changes
           git commit -m "Automated sync from GitHub Actions" || echo "No changes to commit"
           
-          # Push to Hugging Face Space with token authentication
-          git push https://USER:$HF_TOKEN@huggingface.co/spaces/sikeaditya/LLM-Cloud-Demo main
+          # Pull changes from remote first to integrate any remote changes
+          git pull --rebase origin main
+          
+          # Force push to Hugging Face Space with token authentication
+          git push -f https://USER:$HF_TOKEN@huggingface.co/spaces/sikeaditya/LLM-Cloud-Demo main
