@@ -13,17 +13,34 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Sync files to the Hugging Face Space repository
-      - name: Push to Hub Space
+      # Step 2: Configure Git with Hugging Face credentials
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          
+      # Step 3: Manual push to Hugging Face Space using Git
+      - name: Push to Hugging Face Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN_WRITE }}
-        uses: huggingface/huggingface-sync@main
-        with:
-          # The Hugging Face repository type (space, model, dataset)
-          repo_type: space
-          # The Hugging Face Space ID (username/space_name)
-          repo_id: sikeaditya/LLM-Cloud-Demo
-          # The source directory in your GitHub repo containing the files to sync
-          source_dir: .
-          # Commit message for the push to the HF Space repo
-          commit_message: "Automated sync from GitHub Actions"
+        run: |
+          # Clone the Hugging Face Space repository
+          git clone https://huggingface.co/spaces/sikeaditya/LLM-Cloud-Demo huggingface-repo
+          
+          # Remove everything except .git directory
+          find huggingface-repo -mindepth 1 -maxdepth 1 -not -name ".git" -exec rm -rf {} \;
+          
+          # Copy all files from GitHub repo to HF repo directory
+          cp -r $(ls -A | grep -v "huggingface-repo") huggingface-repo/
+          
+          # Go to HF repo directory
+          cd huggingface-repo
+          
+          # Add all changes to git
+          git add .
+          
+          # Commit changes
+          git commit -m "Automated sync from GitHub Actions" || echo "No changes to commit"
+          
+          # Push to Hugging Face Space with token authentication
+          git push https://USER:$HF_TOKEN@huggingface.co/spaces/sikeaditya/LLM-Cloud-Demo main
