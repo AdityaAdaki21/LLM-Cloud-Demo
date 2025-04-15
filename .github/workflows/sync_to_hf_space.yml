@@ -30,23 +30,25 @@ jobs:
       - name: List files
         run: |
           ls -la
-          pwd
           
       # Step 5: Create and push to Hugging Face Space
       - name: Push to Hugging Face Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN_WRITE }}
         run: |
+          # Clean any existing hf_repo directory
+          rm -rf hf_repo
+          
           # Create a new directory for the HF repo
           mkdir -p hf_repo
-          cd hf_repo
           
-          # Initialize a new git repository
+          # Copy specific files to the HF repo
+          cp -r README.md app.py requirements.txt .github hf_repo/
+          
+          # Initialize git in the new directory
+          cd hf_repo
           git init
           git branch -m main
-          
-          # Copy all files except .git directory
-          find .. -maxdepth 1 -not -path "*/\.*" -not -path "../hf_repo" -exec cp -r {} . \;
           
           # Show what was copied
           ls -la
