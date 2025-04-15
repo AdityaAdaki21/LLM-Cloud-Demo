@@ -9,42 +9,56 @@ jobs:
   sync-to-hub:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Check out the code from the GitHub repository with full history
+      # Step 1: Check out the code from the GitHub repository
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Fetch all history for proper syncing
 
-      # Step 2: Install Git LFS
+      # Step 2: Setup Git LFS
       - name: Setup Git LFS
         run: |
           git lfs install
-          
-      # Step 3: Configure Git with Hugging Face credentials
+
+      # Step 3: Configure Git
       - name: Configure Git
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           
-      # Step 4: Manual sync to Hugging Face Space using Git
+      # Step 4: List files to confirm what's available
+      - name: List files
+        run: |
+          ls -la
+          pwd
+          
+      # Step 5: Create and push to Hugging Face Space
       - name: Push to Hugging Face Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN_WRITE }}
         run: |
-          # Create a fresh repository
+          # Create a new directory for the HF repo
           mkdir -p hf_repo
           cd hf_repo
+          
+          # Initialize a new git repository
           git init
+          git branch -m main
           
-          # Copy all files from GitHub checkout (excluding .git directory)
-          cp -r ../$(ls -A .. | grep -v "^\.git$\|^hf_repo$") ./
+          # Copy all files except .git directory
+          find .. -maxdepth 1 -not -path "*/\.*" -not -path "../hf_repo" -exec cp -r {} . \;
           
-          # Configure the remote
+          # Show what was copied
+          ls -la
+          
+          # Set up the remote
           git remote add origin https://USER:$HF_TOKEN@huggingface.co/spaces/sikeaditya/LLM-Cloud-Demo
           
-          # Add and commit files
+          # Add all files
           git add .
+          
+          # Commit files
           git commit -m "Automated sync from GitHub Actions"
           
-          # Force push to the HF Space
-          git push -f origin master:main
+          # Force push to HF Space
+          git push -f origin main
