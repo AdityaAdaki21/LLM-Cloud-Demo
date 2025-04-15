@@ -1,0 +1,7 @@
+transformers>=4.38.0 # Or a recent version supporting Gemma
+accelerate
+bitsandbytes # Often needed for efficient loading
+torch
+gradio
+# Add sentencepiece if not included by transformers
+sentencepiece
