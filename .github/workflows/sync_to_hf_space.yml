@@ -11,24 +11,19 @@ jobs:
     steps:
       # Step 1: Check out the code from the GitHub repository
       - name: Checkout repository
-        uses: actions/checkout@v4 # Use a specific version like v4
+        uses: actions/checkout@v4
 
       # Step 2: Sync files to the Hugging Face Space repository
       - name: Push to Hub Space
         env:
-          # Use the WRITE token stored in GitHub secrets
           HF_TOKEN: ${{ secrets.HF_TOKEN_WRITE }}
-        # Corrected line:
-        uses: huggingface/hub-sync-action@v0.1 # Add '-action' to the name # Use the dedicated sync action
+        uses: huggingface/huggingface-sync@main
         with:
           # The Hugging Face repository type (space, model, dataset)
           repo_type: space
           # The Hugging Face Space ID (username/space_name)
-          # IMPORTANT: Replace 'your-hf-username/your-space-name' with your actual HF username and Space name
-          target_repo: sikeaditya/LLM-Cloud-Demo
-          # The source directory in your GitHub repo containing the files to sync ('.' means root)
-          source_repo: .
-          # Path type ('directory' or 'file') - sync the whole directory
-          path_type: directory
+          repo_id: sikeaditya/LLM-Cloud-Demo
+          # The source directory in your GitHub repo containing the files to sync
+          source_dir: .
           # Commit message for the push to the HF Space repo
-          commit_message: "Automated sync from GitHub Actions" # Optional but recommended
+          commit_message: "Automated sync from GitHub Actions"
