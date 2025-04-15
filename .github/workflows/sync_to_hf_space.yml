@@ -9,41 +9,42 @@ jobs:
   sync-to-hub:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Check out the code from the GitHub repository
+      # Step 1: Check out the code from the GitHub repository with full history
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for proper syncing
 
-      # Step 2: Configure Git with Hugging Face credentials
+      # Step 2: Install Git LFS
+      - name: Setup Git LFS
+        run: |
+          git lfs install
+          
+      # Step 3: Configure Git with Hugging Face credentials
       - name: Configure Git
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           
-      # Step 3: Manual push to Hugging Face Space using Git
+      # Step 4: Manual sync to Hugging Face Space using Git
       - name: Push to Hugging Face Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN_WRITE }}
         run: |
-          # Clone the Hugging Face Space repository
-          git clone https://huggingface.co/spaces/sikeaditya/LLM-Cloud-Demo huggingface-repo
+          # Create a fresh repository
+          mkdir -p hf_repo
+          cd hf_repo
+          git init
           
-          # Remove everything except .git directory
-          find huggingface-repo -mindepth 1 -maxdepth 1 -not -name ".git" -exec rm -rf {} \;
+          # Copy all files from GitHub checkout (excluding .git directory)
+          cp -r ../$(ls -A .. | grep -v "^\.git$\|^hf_repo$") ./
           
-          # Copy all files from GitHub repo to HF repo directory
-          cp -r $(ls -A | grep -v "huggingface-repo") huggingface-repo/
+          # Configure the remote
+          git remote add origin https://USER:$HF_TOKEN@huggingface.co/spaces/sikeaditya/LLM-Cloud-Demo
           
-          # Go to HF repo directory
-          cd huggingface-repo
-          
-          # Add all changes to git
+          # Add and commit files
           git add .
+          git commit -m "Automated sync from GitHub Actions"
           
-          # Commit changes
-          git commit -m "Automated sync from GitHub Actions" || echo "No changes to commit"
-          
-          # Pull changes from remote first to integrate any remote changes
-          git pull --rebase origin main
-          
-          # Force push to Hugging Face Space with token authentication
-          git push -f https://USER:$HF_TOKEN@huggingface.co/spaces/sikeaditya/LLM-Cloud-Demo main
+          # Force push to the HF Space
+          git push -f origin master:main
