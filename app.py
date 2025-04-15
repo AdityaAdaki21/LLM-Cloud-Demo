@@ -18,7 +18,7 @@ HEADERS = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": "application/j
 
 # --- No Local Model Loading Needed ---
 print(f"Application configured to use Hugging Face Inference API.")
-print(f"Target Model: {MODEL_ID}")
+print(f"Target Model: AgriAssist_LLM")
 print(f"API Endpoint: {API_URL}")
 
 # --- Inference Function (Using Hugging Face API) ---
@@ -50,7 +50,7 @@ def generate_response(prompt, max_new_tokens=512): # Using max_tokens from your 
         # "stream": False # Set to True for streaming responses if API supports it
     }
 
-    print(f"Sending request to API for model {MODEL_ID}...")
+    print(f"Sending request to API for model AgriAssist_LLM...")
     try:
         # Make the POST request
         response = requests.post(API_URL, headers=HEADERS, json=payload)
@@ -94,11 +94,9 @@ def generate_response(prompt, max_new_tokens=512): # Using max_tokens from your 
 iface = gr.Interface(
     fn=generate_response,
     inputs=gr.Textbox(lines=5, label="Enter your prompt", placeholder="Type your question or instruction here..."),
-    outputs=gr.Textbox(lines=8, label=f"{MODEL_ID} Says (via API):"), # Updated label
-    title=f"Chat with {MODEL_ID} via Inference API", # Updated title
-    description=(f"Enter a prompt to query the **{MODEL_ID}** model using the Hugging Face Inference API.\n"
-                 f"API Endpoint: `{API_URL}`.\n"
-                 "This demo sends your text to a remote server for processing."), # Updated description
+    outputs=gr.Textbox(lines=8, label=f"AgriAssist_LLM Says (via API):"), # Updated label
+    title=f"Chat with AgriAssist_LLM via Inference API", # Updated title
+    description=("This demo sends your text to a remote server for processing."), # Updated description
     allow_flagging="never",
     examples=[ # Examples should still be relevant
         ["Explain the concept of cloud computing in simple terms."],
