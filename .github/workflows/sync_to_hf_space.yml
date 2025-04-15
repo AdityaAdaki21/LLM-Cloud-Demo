@@ -18,7 +18,8 @@ jobs:
         env:
           # Use the WRITE token stored in GitHub secrets
           HF_TOKEN: ${{ secrets.HF_TOKEN_WRITE }}
-        uses: huggingface/hub-sync@v0.1 # Use the dedicated sync action
+        # Corrected line:
+        uses: huggingface/hub-sync-action@v0.1 # Add '-action' to the name # Use the dedicated sync action
         with:
           # The Hugging Face repository type (space, model, dataset)
           repo_type: space
